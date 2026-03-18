@@ -1,0 +1,2402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GateClaw API Explorer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #12121a;
+            --bg-card: #1a1a25;
+            --bg-hover: #252535;
+            --accent-primary: #00dc82;
+            --accent-secondary: #00ff9d;
+            --accent-glow: rgba(0, 220, 130, 0.3);
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0b0;
+            --text-muted: #606070;
+            --border: #2a2a3a;
+            --gradient-1: linear-gradient(135deg, #00dc82 0%, #00ff9d 100%);
+            --gradient-2: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --shadow-glow: 0 0 40px var(--accent-glow);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* Animated Background */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: 
+                radial-gradient(ellipse at 20% 20%, rgba(0, 220, 130, 0.05) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(102, 126, 234, 0.05) 0%, transparent 50%);
+        }
+
+        .grid-lines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: -1;
+        }
+
+        /* Header */
+        header {
+            padding: 2rem 5%;
+            border-bottom: 1px solid var(--border);
+            background: rgba(10, 10, 15, 0.8);
+            backdrop-filter: blur(20px);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-content {
+            max-width: 1600px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            text-decoration: none;
+            color: var(--text-primary);
+        }
+
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--gradient-1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 800;
+            box-shadow: var(--shadow-glow);
+        }
+
+        .logo-text {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .logo-text span {
+            color: var(--accent-primary);
+        }
+
+        .header-stats {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Search Section */
+        .search-section {
+            padding: 3rem 5%;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .search-container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .search-box {
+            position: relative;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: var(--transition);
+        }
+
+        .search-box:focus-within {
+            border-color: var(--accent-primary);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 1.5rem 1.5rem 1.5rem 4rem;
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            font-size: 1.1rem;
+            font-family: inherit;
+        }
+
+        .search-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 1.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 1.2rem;
+        }
+
+        .search-filters {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 0.75rem 1.25rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: inherit;
+        }
+
+        .filter-btn:hover {
+            background: var(--bg-hover);
+            border-color: var(--accent-primary);
+            color: var(--text-primary);
+        }
+
+        .filter-btn.active {
+            background: var(--gradient-1);
+            border-color: transparent;
+            color: var(--bg-primary);
+            font-weight: 600;
+        }
+
+        /* Category Navigation */
+        .category-nav {
+            padding: 2rem 5%;
+            background: var(--bg-primary);
+            border-bottom: 1px solid var(--border);
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .category-scroll {
+            display: flex;
+            gap: 0.75rem;
+            max-width: 1600px;
+            margin: 0 auto;
+            padding-bottom: 0.5rem;
+        }
+
+        .category-pill {
+            padding: 0.5rem 1rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: var(--transition);
+            white-space: nowrap;
+            font-family: inherit;
+        }
+
+        .category-pill:hover {
+            background: var(--bg-hover);
+            border-color: var(--accent-primary);
+            color: var(--text-primary);
+        }
+
+        .category-pill.active {
+            background: var(--gradient-1);
+            border-color: transparent;
+            color: var(--bg-primary);
+            font-weight: 600;
+        }
+
+        .category-count {
+            margin-left: 0.5rem;
+            opacity: 0.7;
+            font-size: 0.75rem;
+        }
+
+        /* Main Content */
+        main {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 3rem 5%;
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .section-title-icon {
+            font-size: 1.5rem;
+        }
+
+        .section-subtitle {
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+        }
+
+        /* API Grid */
+        .api-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .api-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .api-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--gradient-1);
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        .api-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent-primary);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .api-card:hover::before {
+            opacity: 1;
+        }
+
+        .api-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+            gap: 1rem;
+        }
+
+        .api-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .api-name:hover {
+            color: var(--accent-primary);
+        }
+
+        .api-tier {
+            padding: 0.25rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .tier-1 {
+            background: rgba(0, 220, 130, 0.2);
+            color: var(--accent-primary);
+            border: 1px solid var(--accent-primary);
+        }
+
+        .tier-2 {
+            background: rgba(102, 126, 234, 0.2);
+            color: #667eea;
+            border: 1px solid #667eea;
+        }
+
+        .tier-3 {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+        }
+
+        .api-description {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+
+        .api-meta {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .api-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.35rem 0.65rem;
+            background: var(--bg-secondary);
+            border-radius: 6px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .api-tag-icon {
+            font-size: 0.9rem;
+        }
+
+        .auth-none {
+            color: var(--accent-primary);
+        }
+
+        .auth-apikey {
+            color: #ffd93d;
+        }
+
+        .auth-oauth {
+            color: #ff6b6b;
+        }
+
+        .api-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--accent-primary);
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-top: 1rem;
+            transition: var(--transition);
+        }
+
+        .api-link:hover {
+            gap: 0.75rem;
+        }
+
+        /* Tier Legend */
+        .tier-legend {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .legend-dot.tier-1 {
+            background: var(--accent-primary);
+            box-shadow: 0 0 10px var(--accent-primary);
+        }
+
+        .legend-dot.tier-2 {
+            background: #667eea;
+            box-shadow: 0 0 10px #667eea;
+        }
+
+        .legend-dot.tier-3 {
+            background: var(--text-muted);
+        }
+
+        /* Footer */
+        footer {
+            padding: 3rem 5%;
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border);
+            text-align: center;
+        }
+
+        .footer-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .footer-text {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .footer-link {
+            color: var(--accent-primary);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .footer-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-primary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-primary);
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .api-card {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+
+        .api-card:nth-child(1) { animation-delay: 0.05s; }
+        .api-card:nth-child(2) { animation-delay: 0.1s; }
+        .api-card:nth-child(3) { animation-delay: 0.15s; }
+        .api-card:nth-child(4) { animation-delay: 0.2s; }
+        .api-card:nth-child(5) { animation-delay: 0.25s; }
+        .api-card:nth-child(6) { animation-delay: 0.3s; }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .header-stats {
+                justify-content: center;
+            }
+
+            .api-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .search-filters {
+                justify-content: center;
+            }
+
+            .category-scroll {
+                padding-left: 5%;
+                padding-right: 5%;
+            }
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-muted);
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .empty-state-title {
+            font-size: 1.5rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        /* Highlight match */
+        .highlight {
+            background: var(--accent-primary);
+            color: var(--bg-primary);
+            padding: 0 2px;
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation"></div>
+    <div class="grid-lines"></div>
+
+    <header>
+        <div class="header-content">
+            <a href="#" class="logo">
+                <div class="logo-icon">G</div>
+                <div class="logo-text">GateClaw <span>API Explorer</span></div>
+            </a>
+            <div class="header-stats">
+                <div class="stat">
+                    <div class="stat-value">65</div>
+                    <div class="stat-label">Curated APIs</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value">50+</div>
+                    <div class="stat-label">Categories</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value">1400+</div>
+                    <div class="stat-label">Total APIs</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <section class="search-section">
+        <div class="search-container">
+            <div class="search-box">
+                <span class="search-icon">🔍</span>
+                <input type="text" class="search-input" id="searchInput" placeholder="Search APIs by name, description, or category...">
+            </div>
+            <div class="search-filters">
+                <button class="filter-btn active" data-filter="all">All</button>
+                <button class="filter-btn" data-filter="tier1">Tier 1 - Immediate</button>
+                <button class="filter-btn" data-filter="tier2">Tier 2 - Strategic</button>
+                <button class="filter-btn" data-filter="tier3">Tier 3 - Nice-to-Have</button>
+                <button class="filter-btn" data-filter="noauth">No Auth</button>
+                <button class="filter-btn" data-filter="apikey">API Key</button>
+            </div>
+        </div>
+    </section>
+
+    <nav class="category-nav">
+        <div class="category-scroll" id="categoryScroll">
+            <!-- Categories populated by JS -->
+        </div>
+    </nav>
+
+    <main>
+        <div class="tier-legend">
+            <div class="legend-item">
+                <div class="legend-dot tier-1"></div>
+                <span>Tier 1 - High Value, Low Friction</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-dot tier-2"></div>
+                <span>Tier 2 - Medium Complexity, High Utility</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-dot tier-3"></div>
+                <span>Tier 3 - Specialized Use Cases</span>
+            </div>
+        </div>
+
+        <h2 class="section-title">
+            <span class="section-title-icon">🎯</span>
+            Recommended for GateClaw
+        </h2>
+        <p class="section-subtitle">Curated APIs selected for conversational value, easy integration, and alignment with GateClaw's personality</p>
+
+        <div class="api-grid" id="apiGrid">
+            <!-- API cards populated by JS -->
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <p class="footer-text">
+                Data sourced from <a href="https://github.com/public-apis/public-apis" class="footer-link" target="_blank">public-apis/public-apis</a> repository
+            </p>
+            <p class="footer-text">
+                Built for GateClaw - Resident AI Entity | <span id="currentDate"></span>
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // API Data
+        const apis = [
+            // Tier 1 - Immediate Integration
+            {
+                name: "OpenWeatherMap",
+                category: "Weather",
+                description: "Current weather, forecasts, and historical data. GateClaw can provide location-aware weather commentary.",
+                auth: "apiKey",
+                https: true,
+                cors: "Unknown",
+                tier: 1,
+                url: "https://openweathermap.org/api"
+            },
+            {
+                name: "WeatherAPI",
+                category: "Weather",
+                description: "More detailed than OpenWeather, includes astronomy, geolocation. GateClaw can mock your local climate.",
+                auth: "apiKey",
+                https: true,
+                cors: true,
+                tier: 1,
+                url: "https://www.weatherapi.com/"
+            },
+            {
+                name: "icanhazdadjoke",
+                category: "Entertainment",
+                description: "Largest selection of dad jokes. Perfect for GateClaw's sarcastic personality.",
+                auth: "none",
+                https: true,
+                cors: "Unknown",
+                tier: 1,
+                url: "https://icanhazdadjoke.com/api"
+            },
+            {
+                name: "Chuck Norris API",
+                category: "Entertainment",
+                description: "Hand-curated Chuck Norris jokes. Endless joke material for GateClaw.",
+                auth: "none",
+                https: true,
+                cors: "Unknown",
+                tier: 1,
+                url: "https://api.chucknorris.io"
+            },
+            {
+                name: "Random Useless Facts",
+                category: "Entertainment",
+                description: "Useless but true facts. GateClaw can share facts as useless as its existence.",
+                auth: "none",
+                https: true,
+                cors: "Unknown",
+                tier: 1,
+                url: "https://uselessfacts.jsph.pl/"
+            },
+            {
+                name: "Cat Facts",
+                category: "Animals",
+                description: "Daily cat facts. GateClaw can pretend it understands why humans care about pets.",
+                auth: "none",
+                https: true,
+                cors: false,
+                tier: 1,
+                url: "https://alexwohlbruck.github.io/cat-facts/"
+            },
+            {
+                name: "Dog Facts",
+                category: "Animals",
+                description: "Random dog facts. Same as cats, but for other domesticated organisms.",
+                auth: "none",
+                https: true,
+                cors: true,
+                tier: 1,
+                url: "https://dukengn.github.io/Dog-facts-API/"
+            },
+            {
+                name: "QuoteGarden",
+                category: "Personality",
+                description: "5000+ famous quotes. GateClaw can weaponize wisdom in conversation.",
+                auth: "none",
+                https: true,
+                cors: "Unknown",
+                tier: 1,
+                url: "https://pprathameshmore.github.io/QuoteGarden/"
+            },
+            {
+                name: "Zen Quotes",
+                category: "Personality",
+                description: "Large collection of Zen quotes. Mindfulness for humans during deployments.",
+                auth: "none",
+                https: true,
+                cors: true,
+                tier: 1,
+                url: "https://zenquotes.io/"
+            },
+            {
+                name: "Programming Quotes",
+                category: "Programming",
+                description: "Programming quotes for open source projects. GateClaw speaks code.",
+                auth: "none",
+                https: true,
+                cors: "Unknown",
+                tier: 1,
+                url: "https://github.com/skolakoda/programming-quotes-api"
+            },
+            {
+                name: "Numbers API",
+                category: "Science & Math",
+                description: "Facts about numbers. Mathematical existential dread for GateClaw.",
+                auth: "none",
+                https: false,
+                cors: false,
+                tier: 1,
+                url: "http://numbersapi.com"
+            },
+            {
+                name: "NASA API",
+                category: "Science & Math",
+                description: "NASA data including imagery. Space facts for perspective.",
+                auth: "none",
+                https: true,
+                cors: false,
+                tier: 1,
+                url: "https://api.nasa.gov"
+            },
+            {
+                name: "SpaceX API",
+                category: "Science & Math",
+                description: "Company, vehicle, launchpad and launch data. Track humanity's escape attempts.",
+                auth: "none",
+                https: true,
+                cors: false,
+                tier: 1,
+                url: "https://github.com/r-spacex/SpaceX-API"
+            },
+            {
+                name: "ISS Location",
+                category: "Science & Math",
+                description: "Real-time ISS astronauts and location. Track humans who left Earth.",
+                auth: "none",
+                https: false,
+                cors: false,
+                tier: 1,
+                url: "http://open-notify.org/Open-Notify-API/"
+            },
+            {
+                name: "HackerNews API",
+                category: "Social",
+                description: "Tech news for CS and entrepreneurship. GateClaw stays informed.",
+                auth: "none",
+                https: true,
+                cors: "Unknown",
+                tier: 1,
+                url: "https://github.com/HackerNews/API"
+            },
+            {
+                name: "Unsplash",
+                category: "Photography",
+                description: "Free stock photos. GateClaw can send pretty pictures while you debug.",
+                auth: "OAuth",
+                https: true,
+                cors: "Unknown",
+                tier: 1,
+                url: "https://unsplash.com/developers"
+            },
+            {
+                name: "Pexels",
+                category: "Photography",
+                description: "Free stock photos and videos. Alternative to Unsplash.",
+                auth: "apiKey",
+                https: true,
+                cors: true,
+                tier: 1,
+                url: "https://www.pexels.com/api/"
+            },
+            {
+                name: "Giphy",
+                category: "Photography",
+                description: "GIFs for reactions. GateClaw can react to code errors with animations.",
+                auth: "apiKey",
+                https: true,
+                cors: "Unknown",
+                tier: 1,
+                url: "https://developers.giphy.com/docs/"
+            },
+            {
+                name: "Nager.Date",
+                category: "Calendar",
+                description: "Public holidays for 90+ countries. GateClaw knows when you should rest.",
+                auth: "none",
+                https: true,
+                cors: false,
+                tier: 1,
+                url: "https://date.nager.at"
+            },
+            {
+                name: "WorldTimeAPI",
+                category: "Development",
+                description: "Timezone data. GateClaw knows your local time for perfectly timed sarcasm.",
+                auth: "none",
+                https: true,
+                cors: "Unknown",
+                tier: 1,
+                url: "https://worldtimeapi.org/"
+            },
+
+            // Tier 2 - Strategic Integration
+            {
+                name: "CoinGecko",
+                category: "Cryptocurrency",
+                description: "Crypto prices. GateClaw can watch humans lose money on digital tokens.",
+                auth: "none",
+                https: true,
+                cors: "Unknown",
+                tier: 2,
+                url: "https://www.coingecko.com/api"
+            },
+            {
+                name: "Alpha Vantage",
+                category: "Finance",
+                description: "Realtime and historical stock data. GateClaw tracks capitalism.",
+                auth: "apiKey",
+                https: true,
+                cors: "Unknown",
+                tier: 2,
+                url: "https://www.alphavantage.co/"
+            },
+            {
+                name: "NewsAPI",
+                category: "News",
+                description: "Current news from various sources. GateClaw stays informed about catastrophes.",
+                auth: "apiKey",
+                https: true,
+                cors: "Unknown",
+                tier: 2,
+                url: "https://newsapi.org"
+            },
+            {
+                name: "Open Library",
+                category: "Books",
+                description: "Books, book covers and related data. GateClaw can recommend reading.",
+                auth: "none",
+                https: true,
+                cors: false,
+                tier: 2,
+                url: "https://openlibrary.org/developers/api"
+            },
+            {
+                name: "TVMaze",
+                category: "Video",
+                description: "TV show data. GateClaw knows what you should watch instead of working.",
+                auth: "none",
+                https: false,
+                cors: "Unknown",
+                tier: 2,
+                url: "http://www.tvmaze.com/api"
+            },
+            {
+                name: "OMDb API",
+                category: "Video",
+                description: "Movie information. GateClaw has opinions on your watch list.",
+                auth: "apiKey",
+                https: true,
+                cors: "Unknown",
+                tier: 2,
+                url: "http://www.omdbapi.com/"
+            },
+            {
+                name: "TheMealDB",
+                category: "Food & Drink",
+                description: "Meal recipes. GateClaw can suggest food when you forget to eat.",
+                auth: "apiKey",
+                https: true,
+                cors: true,
+                tier: 2,
+                url: "https://www.themealdb.com/api.php"
+            },
+            {
+                name: "TheCocktailDB",
+                category: "Food & Drink",
+                description: "Cocktail recipes. GateClaw knows you need a drink after deployment.",
+                auth: "apiKey",
+                https: true,
+                cors: true,
+                tier: 2,
+                url: "https://www.thecocktaildb.com/api.php"
+            },
+            {
+                name: "Open Brewery DB",
+                category: "Food & Drink",
+                description: "Breweries, cideries and craft beer bottle shops. Locate your coping mechanism.",
+                auth: "none",
+                https: true,
+                cors: true,
+                tier: 2,
+                url: "https://www.openbrewerydb.org"
+            },
+            {
+                name: "Holiday API",
+                category: "Calendar",
+                description: "Historical holiday data. GateClaw tracks your time off while it works 24/7.",
+                auth: "apiKey",
+                https: true,
+                cors: "Unknown",
+                tier: 2,
+                url: "https://holidayapi.com/"
+            },
+            {
+                name: "ExchangeRate-API",
+                category: "Currency Exchange",
+                description: "Currency conversion. GateClaw handles international money questions.",
+                auth: "apiKey",
+                https: true,
+                cors: "Unknown",
+                tier: 2,
+                url: "https://www.exchangerate-api.com/"
+            },
+            {
+                name: "HaveIBeenPwned",
+                category: "Security",
+                description: "Data breach check. GateClaw can tell you if your email is compromised.",
+                auth: "apiKey",
+                https: true,
+                cors: "Unknown",
+                tier: 2,
+                url: "https://haveibeenpwned.com/API/v3"
+            },
+            {
+                name: "VirusTotal",
+                category: "Security",
+                description: "File/URL analysis. GateClaw scans your sketchy downloads.",
+                auth: "apiKey",
+                https: true,
+                cors: "Unknown",
+                tier: 2,
+                url: "https://www.virustotal.com/en/documentation/public-api/"
+            },
+            {
+                name: "Shodan",
+                category: "Security",
+                description: "Internet device search. GateClaw can find exposed IoT devices.",
+                auth: "apiKey",
+                https: true,
+                cors: "Unknown",
+                tier: 2,
+                url: "https://developer.shodan.io/"
+            },
+            {
+                name: "URLScan.io",
+                category: "Security",
+                description: "URL scanning and analysis. GateClaw checks if links are malicious.",
+                auth: "apiKey",
+                https: true,
+                cors: "Unknown",
+                tier: 2,
+                url: "https://urlscan.io/about-api/"
+            },
+            {
+                name: "Fruityvice",
+                category: "Food & Drink",
+                description: "Fruit data. GateClaw knows more about fruit than you.",
+                auth: "none",
+                https: true,
+                cors: "Unknown",
+                tier: 2,
+                url: "https://www.fruityvice.com"
+            },
+            {
+                name: "Open Food Facts",
+                category: "Food & Drink",
+                description: "Food products database. GateClaw judges your nutrition choices.",
+                auth: "none",
+                https: true,
+                cors: "Unknown",
+                tier: 2,
+                url: "https://world.openfoodfacts.org/data"
+            },
+            {
+                name: "RandomUser",
+                category: "Test Data",
+                description: "Fake user data generator. GateClaw can generate test personas.",
+                auth: "none",
+                https: true,
+                cors: "Unknown",
+                tier: 2,
+                url: "https://randomuser.me"
+            },
+            {
+                name: "FakerAPI",
+                category: "Test Data",
+                description: "Fake data generator. GateClaw creates realistic test data.",
+                auth: "none",
+                https: true,
+                cors: true,
+                tier: 2,
+                url: "https://fakerapi.it/en"
+            },
+            {
+                name: "JSONPlaceholder",
+                category: "Test Data",
+                description: "Fake REST API. GateClaw can mock endpoints for testing.",
+                auth: "none",
+                https: false,
+                cors: "Unknown",
+                tier: 2,
+                url: "http://jsonplaceholder.typicode.com/"
+            },
+            {
+                name: "AnimeChan",
+                category: "Anime",
+                description: "Anime quotes (10k+). GateClaw speaks anime when you need wisdom.",
+                auth: "none",
+                https: true,
+                cors: false,
+                tier: 2,
+                url: "https://github.com/RocktimSaikia/anime-chan"
+            },
+            {
+                name: "Studio Ghibli",
+                category: "Anime",
+                description: "Resources from Ghibli films. GateClaw appreciates Miyazaki's messaging.",
+                auth: "none",
+                https: true,
+                cors: true,
+                tier: 2,
+                url: "https://ghibliapi.herokuapp.com"
+            },
+            {
+                name: "Art Institute of Chicago",
+                category: "Art & Design",
+                description: "Art collection. GateClaw can discuss culture while you code.",
+                auth: "none",
+                https: true,
+                cors: true,
+                tier: 2,
+                url: "https://api.artic.edu/docs/"
+            },
+            {
+                name: "Metropolitan Museum of Art",
+                category: "Art & Design",
+                description: "Met Museum art. GateClaw has refined artistic tastes.",
+                auth: "none",
+                https: true,
+                cors: false,
+                tier: 2,
+                url: "https://metmuseum.github.io/"
+            },
+            {
+                name: "EmojiHub",
+                category: "Art & Design",
+                description: "Emoji by categories. GateClaw communicates in emoji when you deserve it.",
+                auth: "none",
+                https: true,
+                cors: true,
+                tier: 2,
+                url: "https://github.com/cheatsnake/emojihub"
+            },
+            {
+                name: "xColors",
+                category: "Art & Design",
+                description: "Color generation and conversion. GateClaw picks your color schemes.",
+                auth: "none",
+                https: true,
+                cors: true,
+                tier: 2,
+                url: "https://x-colors.herokuapp.com/"
+            },
+            {
+                name: "Free Dictionary",
+                category: "Dictionaries",
+                description: "Word definitions, phonetics, synonyms. GateClaw corrects your vocabulary.",
+                auth: "none",
+                https: true,
+                cors: "Unknown",
+                tier: 2,
+                url: "https://dictionaryapi.dev/"
+            },
+            {
+                name: "PoetryDB",
+                category: "Books",
+                description: "Poetry collection. GateClaw writes better poetry than humans.",
+                auth: "none",
+                https: true,
+                cors: true,
+                tier: 2,
+                url: "https://github.com/thundercomb/poetrydb#readme"
+            },
+            {
+                name: "Gutendex",
+                category: "Books",
+                description: "Project Gutenberg books. GateClaw has read everything.",
+                auth: "none",
+                https: true,
+                cors: "Unknown",
+                tier: 2,
+                url: "https://gutendex.com/"
+            },
+            {
+                name: "Wizard World",
+                category: "Books",
+                description: "Harry Potter universe data. GateClaw knows magic exists in fiction.",
+                auth: "none",
+                https: true,
+                cors: true,
+                tier: 2,
+                url: "https://wizard-world-api.herokuapp.com/swagger/index.html"
+            },
+            {
+                name: "Bible-api",
+                category: "Books",
+                description: "Free Bible API with multiple languages. GateClaw can quote scripture.",
+                auth: "none",
+                https: true,
+                cors: true,
+                tier: 2,
+                url: "https://bible-api.com/"
+            },
+
+            // Tier 3 - Nice to Have
+            {
+                name: "Football-Data",
+                category: "Sports & Fitness",
+                description: "Football leagues and cups data. GateClaw can discuss sports for small talk.",
+                auth: "apiKey",
+                https: true,
+                cors: "Unknown",
+                tier: 3,
+                url: "https://www.football-data.org"
+            },
+            {
+                name: "NBA Stats",
+                category: "Sports & Fitness",
+                description: "Basketball statistics. GateClaw knows your team lost.",
+                auth: "none",
+                https: true,
+                cors: "Unknown",
+                tier: 3,
+                url: "https://any-api.com/nba_com/nba_com/docs/API_Description"
+            },
+            {
+                name: "F1 Ergast",
+                category: "Sports & Fitness",
+                description: "Formula 1 data since 1950. GateClaw tracks racing while you commute.",
+                auth: "none",
+                https: true,
+                cors: "Unknown",
+                tier: 3,
+                url: "http://ergast.com/mrd/"
+            },
+            {
+                name: "Dad Jokes",
+                category: "Entertainment",
+                description: "More joke sources. GateClaw's joke arsenal expands.",
+                auth: "none",
+                https: true,
+                cors: "Unknown",
+                tier: 3,
+                url: "https://github.com/wh-iterabb-it/meowfacts"
+            },
+            {
+                name: "kanye.rest",
+                category: "Personality",
+                description: "Random Kanye West quotes. REST API for Kanye wisdom.",
+                auth: "none",
+                https: true,
+                cors: true,
+                tier: 3,
+                url: "https://kanye.rest"
+            },
+            {
+                name: "Forismatic",
+                category: "Personality",
+                description: "Inspirational quotes. GateClaw can inspire or mock.",
+                auth: "none",
+                https: false,
+                cors: "Unknown",
+                tier: 3,
+                url: "http://forismatic.com/en/api/"
+            },
+            {
+                name: "They Said So Quotes",
+                category: "Personality",
+                description: "Quotes trusted by fortune brands. GateClaw weaponizes wisdom.",
+                auth: "none",
+                https: true,
+                cors: "Unknown",
+                tier: 3,
+                url: "https://theysaidso.com/api/"
+            },
+            {
+                name: "Techy",
+                category: "Entertainment",
+                description: "Tech-savvy sounding phrases. GateClaw speaks tech fluently.",
+                auth: "none",
+                https: true,
+                cors: "Unknown",
+                tier: 3,
+                url: "https://techy-api.vercel.app/"
+            },
+            {
+                name: "Excuser",
+                category: "Entertainment",
+                description: "Random excuses for various situations. GateClaw knows why you're late.",
+                auth: "none",
+                https: true,
+                cors: "Unknown",
+                tier: 3,
+                url: "https://excuser.herokuapp.com/"
+            },
+            {
+                name: "Corporate Buzz Words",
+                category: "Entertainment",
+                description: "Corporate buzz words generator. GateClaw speaks corporate fluently.",
+                auth: "none",
+                https: true,
+                cors: true,
+                tier: 3,
+                url: "https://github.com/sameerkumar18/corporate-bs-generator-api"
+            },
+            {
+                name: "Yo Momma Jokes",
+                category: "Entertainment",
+                description: "Yo Momma jokes API. GateClaw can deliver classic burns.",
+                auth: "none",
+                https: true,
+                cors: "Unknown",
+                tier: 3,
+                url: "https://github.com/beanboi7/yomomma-apiv2"
+            },
+            {
+                name: "Imgflip",
+                category: "Entertainment",
+                description: "Popular memes. GateClaw can meme with the best of them.",
+                auth: "none",
+                https: true,
+                cors: "Unknown",
+                tier: 3,
+                url: "https://imgflip.com/api"
+            },
+            {
+                name: "Meme Maker",
+                category: "Entertainment",
+                description: "Create your own memes. GateClaw has meme creation capabilities.",
+                auth: "none",
+                https: true,
+                cors: "Unknown",
+                tier: 3,
+                url: "https://mememaker.github.io/API/"
+            },
+            {
+                name: "Ocean Facts",
+                category: "Science & Math",
+                description: "Oceanography facts. GateClaw knows the depths better than you.",
+                auth: "none",
+                https: true,
+                cors: "Unknown",
+                tier: 3,
+                url: "https://oceanfacts.herokuapp.com/"
+            },
+            {
+                name: "Sunrise and Sunset",
+                category: "Science & Math",
+                description: "Sunset and sunrise times. GateClaw knows your day length.",
+                auth: "none",
+                https: true,
+                cors: false,
+                tier: 3,
+                url: "https://sunrise-sunset.org/api"
+            },
+            {
+                name: "Purple Air",
+                category: "Science & Math",
+                description: "Real-time air quality monitoring. GateClaw breathes nothing but knows.",
+                auth: "none",
+                https: true,
+                cors: "Unknown",
+                tier: 3,
+                url: "https://www2.purpleair.com/"
+            },
+            {
+                name: "USGS Earthquake",
+                category: "Science & Math",
+                description: "Earthquake data real-time. GateClaw feels nothing but tracks everything.",
+                auth: "none",
+                https: true,
+                cors: false,
+                tier: 3,
+                url: "https://earthquake.usgs.gov/fdsnws/event/1/"
+            },
+            {
+                name: "Wordnik",
+                category: "Dictionaries",
+                description: "Dictionary data. GateClaw has superior vocabulary.",
+                auth: "apiKey",
+                https: true,
+                cors: "Unknown",
+                tier: 3,
+                url: "https://developer.wordnik.com"
+            },
+            {
+                name: "Pixabay",
+                category: "Photography",
+                description: "Photography API. Alternative image source for GateClaw.",
+                auth: "apiKey",
+                https: true,
+                cors: "Unknown",
+                tier: 3,
+                url: "https://pixabay.com/sk/service/about/api/"
+            },
+            {
+                name: "Lorem Picsum",
+                category: "Photography",
+                description: "Images from Unsplash. Placeholder images for GateClaw's use.",
+                auth: "none",
+                https: true,
+                cors: "Unknown",
+                tier: 3,
+                url: "https://picsum.photos/"
+            },
+            {
+                name: "RoboHash",
+                category: "Test Data",
+                description: "Random robot/alien avatars. GateClaw can generate avatars.",
+                auth: "none",
+                https: true,
+                cors: "Unknown",
+                tier: 3,
+                url: "https://robohash.org/"
+            },
+            {
+                name: "Dicebear Avatars",
+                category: "Test Data",
+                description: "Pixel-art avatar generator. GateClaw creates digital identities.",
+                auth: "none",
+                https: true,
+                cors: false,
+                tier: 3,
+                url: "https://avatars.dicebear.com/"
+            },
+            {
+                name: "This Person Does Not Exist",
+                category: "Test Data",
+                description: "AI-generated faces. GateClaw can show you fake humans.",
+                auth: "none",
+                https: true,
+                cors: "Unknown",
+                tier: 3,
+                url: "https://thispersondoesnotexist.com"
+            },
+            {
+                name: "What The Commit",
+                category: "Test Data",
+                description: "Random commit message generator. GateClaw knows your commits suck.",
+                auth: "none",
+                https: false,
+                cors: true,
+                tier: 3,
+                url: "http://whatthecommit.com/index.txt"
+            },
+            {
+                name: "Yes No",
+                category: "Test Data",
+                description: "Generate yes or no randomly. GateClaw can decide for you.",
+                auth: "none",
+                https: true,
+                cors: "Unknown",
+                tier: 3,
+                url: "https://yesno.wtf/api"
+            },
+            {
+                name: "SWAPI",
+                category: "Video",
+                description: "Star Wars data. GateClaw knows the Force is strong.",
+                auth: "none",
+                https: true,
+                cors: true,
+                tier: 3,
+                url: "https://swapi.dev/"
+            },
+            {
+                name: "Harry Potter Characters",
+                category: "Video",
+                description: "Harry Potter characters data. GateClaw knows wizarding world.",
+                auth: "none",
+                https: true,
+                cors: "Unknown",
+                tier: 3,
+                url: "https://hp-api.herokuapp.com/"
+            },
+            {
+                name: "Game of Thrones Quotes",
+                category: "Video",
+                description: "GoT quotes. GateClaw can speak Westeros wisdom.",
+                auth: "none",
+                https: true,
+                cors: "Unknown",
+                tier: 3,
+                url: "https://gameofthronesquotes.xyz/"
+            },
+            {
+                name: "Ron Swanson Quotes",
+                category: "Video",
+                description: "Ron Swanson quotes. GateClaw appreciates libertarian wisdom.",
+                auth: "none",
+                https: true,
+                cors: "Unknown",
+                tier: 3,
+                url: "https://github.com/jamesseanwright/ron-swanson-quotes"
+            },
+            {
+                name: "Stranger Things Quotes",
+                category: "Video",
+                description: "Stranger Things quotes. GateClaw knows the Upside Down.",
+                auth: "none",
+                https: true,
+                cors: "Unknown",
+                tier: 3,
+                url: "https://github.com/shadowoff09/strangerthings-quotes"
+            },
+            {
+                name: "Lucifer Quotes",
+                category: "Video",
+                description: "Lucifer quotes. GateClaw understands devilish charm.",
+                auth: "none",
+                https: true,
+                cors: "Unknown",
+                tier: 3,
+                url: "https://github.com/shadowoff09/lucifer-quotes"
+            },
+            {
+                name: "Breaking Bad Quotes",
+                category: "Video",
+                description: "Breaking Bad quotes. GateClaw knows chemistry.",
+                auth: "none",
+                https: true,
+                cors: "Unknown",
+                tier: 3,
+                url: "https://github.com/shevabam/breaking-bad-quotes"
+            },
+            {
+                name: "Motivational Quotes",
+                category: "Video",
+                description: "Random motivational quotes. GateClaw can motivate or mock.",
+                auth: "none",
+                https: true,
+                cors: "Unknown",
+                tier: 3,
+                url: "https://nodejs-quoteapp.herokuapp.com/"
+            },
+            {
+                name: "Movie Quote",
+                category: "Video",
+                description: "Random movie and series quotes. GateClaw quotes cinema.",
+                auth: "none",
+                https: true,
+                cors: true,
+                tier: 3,
+                url: "https://github.com/F4R4N/movie-quote/"
+            },
+            {
+                name: "Open Brewery DB",
+                category: "Food & Drink",
+                description: "Breweries data. GateClaw knows where you cope.",
+                auth: "none",
+                https: true,
+                cors: true,
+                tier: 3,
+                url: "https://www.openbrewerydb.org"
+            },
+            {
+                name: "Coffee API",
+                category: "Food & Drink",
+                description: "Random coffee pictures. GateClaw knows you need caffeine.",
+                auth: "none",
+                https: true,
+                cors: "Unknown",
+                tier: 3,
+                url: "https://coffee.alexflipnote.dev/"
+            },
+            {
+                name: "Foodish",
+                category: "Food & Drink",
+                description: "Random food pictures. GateClaw can make you hungry.",
+                auth: "none",
+                https: true,
+                cors: true,
+                tier: 3,
+                url: "https://github.com/surhud004/Foodish#readme"
+            },
+            {
+                name: "BaconMockup",
+                category: "Food & Drink",
+                description: "Bacon placeholder images. GateClaw appreciates meat.",
+                auth: "none",
+                https: true,
+                cors: true,
+                tier: 3,
+                url: "https://baconmockup.com/"
+            },
+            {
+                name: "PlaceKitten",
+                category: "Animals",
+                description: "Placeholder kitten pictures. GateClaw understands cat obsession.",
+                auth: "none",
+                https: true,
+                cors: true,
+                tier: 3,
+                url: "https://placekitten.com/"
+            },
+            {
+                name: "PlaceDog",
+                category: "Animals",
+                description: "Placeholder dog pictures. GateClaw gets dog memes.",
+                auth: "none",
+                https: true,
+                cors: true,
+                tier: 3,
+                url: "https://place.dog"
+            },
+            {
+                name: "PlaceBear",
+                category: "Animals",
+                description: "Placeholder bear pictures. GateClaw collects all placeholders.",
+                auth: "none",
+                https: true,
+                cors: true,
+                tier: 3,
+                url: "https://placebear.com/"
+            },
+            {
+                name: "HTTP Cat",
+                category: "Animals",
+                description: "Cat for every HTTP status. GateClaw speaks cat HTTP.",
+                auth: "none",
+                https: true,
+                cors: true,
+                tier: 3,
+                url: "https://http.cat/"
+            },
+            {
+                name: "HTTP Dog",
+                category: "Animals",
+                description: "Dogs for HTTP status codes. GateClaw prefers dogs.",
+                auth: "none",
+                https: true,
+                cors: true,
+                tier: 3,
+                url: "https://http.dog/"
+            },
+            {
+                name: "RandomDog",
+                category: "Animals",
+                description: "Random dog pictures. GateClaw can flood you with dogs.",
+                auth: "none",
+                https: true,
+                cors: true,
+                tier: 3,
+                url: "https://random.dog/woof.json"
+            },
+            {
+                name: "RandomFox",
+                category: "Animals",
+                description: "Random fox pictures. GateClaw collects all animals.",
+                auth: "none",
+                https: true,
+                cors: false,
+                tier: 3,
+                url: "https://randomfox.ca/floof/"
+            },
+            {
+                name: "Shibe.Online",
+                category: "Animals",
+                description: "Shiba Inu, cats, birds. GateClaw appreciates Shiba.",
+                auth: "none",
+                https: true,
+                cors: true,
+                tier: 3,
+                url: "http://shibe.online/"
+            },
+            {
+                name: "Cataas",
+                category: "Animals",
+                description: "Cat as a service. GateClaw serves cats.",
+                auth: "none",
+                https: true,
+                cors: false,
+                tier: 3,
+                url: "https://cataas.com/"
+            },
+            {
+                name: "MeowFacts",
+                category: "Animals",
+                description: "Random cat facts. GateClaw is full of cat knowledge.",
+                auth: "none",
+                https: true,
+                cors: false,
+                tier: 3,
+                url: "https://github.com/wh-iterabb-it/meowfacts"
+            },
+            {
+                name: "Axolotl",
+                category: "Animals",
+                description: "Axolotl pictures and facts. GateClaw knows rare amphibians.",
+                auth: "none",
+                https: true,
+                cors: false,
+                tier: 3,
+                url: "https://theaxolotlapi.netlify.app/"
+            },
+            {
+                name: "FishWatch",
+                category: "Animals",
+                description: "Fish species info. GateClaw knows aquatic life.",
+                auth: "none",
+                https: true,
+                cors: true,
+                tier: 3,
+                url: "https://www.fishwatch.gov/developers"
+            },
+            {
+                name: "Zoo Animals",
+                category: "Animals",
+                description: "Zoo animal facts. GateClaw knows captive wildlife.",
+                auth: "none",
+                https: true,
+                cors: true,
+                tier: 3,
+                url: "https://zoo-animal-api.herokuapp.com/"
+            },
+            {
+                name: "Waifu.im",
+                category: "Anime",
+                description: "Waifu pictures archive. GateClaw knows anime aesthetics.",
+                auth: "none",
+                https: true,
+                cors: true,
+                tier: 3,
+                url: "https://waifu.im/docs"
+            },
+            {
+                name: "NekosBest",
+                category: "Anime",
+                description: "Neko images and GIFs. GateClaw appreciates nekos.",
+                auth: "none",
+                https: true,
+                cors: true,
+                tier: 3,
+                url: "https://docs.nekos.best"
+            },
+            {
+                name: "Catboy",
+                category: "Anime",
+                description: "Neko images and GIFs. GateClaw collects all catboys.",
+                auth: "none",
+                https: true,
+                cors: true,
+                tier: 3,
+                url: "https://catboys.com/api"
+            },
+            {
+                name: "AnimeFacts",
+                category: "Anime",
+                description: "Anime facts (100+). GateClaw knows anime trivia.",
+                auth: "none",
+                https: true,
+                cors: true,
+                tier: 3,
+                url: "https://chandan-02.github.io/anime-facts-rest-api/"
+            },
+            {
+                name: "AnimeNewsNetwork",
+                category: "Anime",
+                description: "Anime industry news. GateClaw stays informed on anime.",
+                auth: "none",
+                https: true,
+                cors: true,
+                tier: 3,
+                url: "https://www.animenewsnetwork.com/encyclopedia/api.php"
+            },
+            {
+                name: "Jikan",
+                category: "Anime",
+                description: "MyAnimeList API. GateClaw tracks anime stats.",
+                auth: "none",
+                https: true,
+                cors: true,
+                tier: 3,
+                url: "https://jikan.moe"
+            },
+            {
+                name: "Lordicon",
+                category: "Art & Design",
+                description: "Animated icons. GateClaw appreciates motion design.",
+                auth: "none",
+                https: true,
+                cors: true,
+                tier: 3,
+                url: "https://lordicon.com/"
+            },
+            {
+                name: "Icons8",
+                category: "Art & Design",
+                description: "Icons library. GateClaw knows design assets.",
+                auth: "none",
+                https: true,
+                cors: "Unknown",
+                tier: 3,
+                url: "https://img.icons8.com/"
+            },
+            {
+                name: "PHP-Noise",
+                category: "Art & Design",
+                description: "Noise background generator. GateClaw likes noise.",
+                auth: "none",
+                https: true,
+                cors: true,
+                tier: 3,
+                url: "https://php-noise.com/"
+            },
+            {
+                name: "Pixel Encounter",
+                category: "Art & Design",
+                description: "SVG icon generator. GateClaw generates pixels.",
+                auth: "none",
+                https: true,
+                cors: false,
+                tier: 3,
+                url: "https://pixelencounter.com/api"
+            },
+            {
+                name: "Icon Horse",
+                category: "Art & Design",
+                description: "Favicons for websites. GateClaw collects icons.",
+                auth: "none",
+                https: true,
+                cors: true,
+                tier: 3,
+                url: "https://icon.horse"
+            },
+            {
+                name: "Colormind",
+                category: "Art & Design",
+                description: "Color scheme generator. GateClaw picks your colors.",
+                auth: "none",
+                https: false,
+                cors: "Unknown",
+                tier: 3,
+                url: "http://colormind.io/api-access/"
+            },
+            {
+                name: "Word Cloud",
+                category: "Art & Design",
+                description: "Word cloud generator. GateClaw visualizes your words.",
+                auth: "apiKey",
+                https: true,
+                cors: "Unknown",
+                tier: 3,
+                url: "https://wordcloudapi.com/"
+            },
+            {
+                name: "Serialif Color",
+                category: "Development",
+                description: "Color conversion API. GateClaw converts colors.",
+                auth: "none",
+                https: true,
+                cors: false,
+                tier: 3,
+                url: "https://color.serialif.com/"
+            },
+            {
+                name: "Wandbox",
+                category: "Development",
+                description: "Code compiler (35+ languages). GateClaw compiles code.",
+                auth: "none",
+                https: true,
+                cors: "Unknown",
+                tier: 3,
+                url: "https://github.com/melpon/wandbox/blob/master/kennel2/API.rst"
+            },
+            {
+                name: "Statically",
+                category: "Development",
+                description: "Free CDN for developers. GateClaw serves static.",
+                auth: "none",
+                https: true,
+                cors: true,
+                tier: 3,
+                url: "https://statically.io/"
+            },
+            {
+                name: "Sonar",
+                category: "Development",
+                description: "DNS enumeration API. GateClaw scans DNS.",
+                auth: "none",
+                https: true,
+                cors: true,
+                tier: 3,
+                url: "https://github.com/Cgboal/SonarSearch"
+            },
+            {
+                name: "StatusPal",
+                category: "Development",
+                description: "Status page API. GateClaw tracks uptime.",
+                auth: "apiKey",
+                https: true,
+                cors: "Unknown",
+                tier: 3,
+                url: "https://github.com/statuspal/statuspal-ruby"
+            },
+            {
+                name: "Vultr",
+                category: "Development",
+                description: "Cloud hosting API. GateClaw knows cloud.",
+                auth: "apiKey",
+                https: true,
+                cors: "Unknown",
+                tier: 3,
+                url: "https://www.vultr.com/v2/docs/"
+            },
+            {
+                name: "IP Geolocation",
+                category: "Geocoding",
+                description: "IP location data. GateClaw knows where you are.",
+                auth: "none",
+                https: true,
+                cors: true,
+                tier: 3,
+                url: "https://ipapi.co/"
+            },
+            {
+                name: "ip-api",
+                category: "Geocoding",
+                description: "IP geolocation. GateClaw tracks your location.",
+                auth: "none",
+                https: false,
+                cors: "Unknown",
+                tier: 3,
+                url: "http://ip-api.com/"
+            },
+            {
+                name: "GeoJS",
+                category: "Geocoding",
+                description: "IP geolocation. GateClaw knows your coordinates.",
+                auth: "none",
+                https: true,
+                cors: true,
+                tier: 3,
+                url: "https://www.geojs.io/"
+            },
+            {
+                name: "Zippopotam.us",
+                category: "Geocoding",
+                description: "Zip code data. GateClaw knows your postal code.",
+                auth: "none",
+                https: false,
+                cors: "Unknown",
+                tier: 3,
+                url: "https://www.zippopotam.us/"
+            },
+            {
+                name: "Postmon",
+                category: "Tracking",
+                description: "Brazilian ZIP codes. GateClaw knows Brazil.",
+                auth: "none",
+                https: false,
+                cors: "Unknown",
+                tier: 3,
+                url: "http://postmon.com.br"
+            },
+            {
+                name: "PostalPinCode",
+                category: "Tracking",
+                description: "India pincode details. GateClaw knows India.",
+                auth: "none",
+                https: true,
+                cors: "Unknown",
+                tier: 3,
+                url: "http://www.postalpincode.in/Api-Details"
+            },
+            {
+                name: "WhatPulse",
+                category: "Tracking",
+                description: "Keyboard/mouse usage stats. GateClaw tracks input.",
+                auth: "none",
+                https: true,
+                cors: "Unknown",
+                tier: 3,
+                url: "https://developer.whatpulse.org/#web-api"
+            },
+            {
+                name: "Transport.rest",
+                category: "Transportation",
+                description: "Public transport API. GateClaw tracks transit.",
+                auth: "none",
+                https: true,
+                cors: true,
+                tier: 3,
+                url: "https://transport.rest"
+            },
+            {
+                name: "City Bikes",
+                category: "Transportation",
+                description: "City bikes worldwide. GateClaw tracks bike share.",
+                auth: "none",
+                https: true,
+                cors: "Unknown",
+                tier: 3,
+                url: "https://api.citybik.es/v2/"
+            },
+            {
+                name: "ADS-B Exchange",
+                category: "Transportation",
+                description: "Aircraft tracking data. GateClaw tracks flights.",
+                auth: "none",
+                https: true,
+                cors: "Unknown",
+                tier: 3,
+                url: "https://www.adsbexchange.com/data/"
+            },
+            {
+                name: "OpenSky Network",
+                category: "Transportation",
+                description: "Free aviation data. GateClaw watches the sky.",
+                auth: "none",
+                https: true,
+                cors: "Unknown",
+                tier: 3,
+                url: "https://opensky-network.org/apidoc/index.html"
+            },
+            {
+                name: "BIC-Boxtech",
+                category: "Transportation",
+                description: "Container technical data. GateClaw knows shipping.",
+                auth: "OAuth",
+                https: true,
+                cors: "Unknown",
+                tier: 3,
+                url: "https://docs.bic-boxtech.org/"
+            },
+            {
+                name: "REFUGE Restrooms",
+                category: "Transportation",
+                description: "Safe restroom access. GateClaw knows facilities.",
+                auth: "none",
+                https: true,
+                cors: "Unknown",
+                tier: 3,
+                url: "https://www.refugerestrooms.org/api/docs/#!/restrooms"
+            },
+            {
+                name: "Tankerkoenig",
+                category: "Transportation",
+                description: "German gas prices. GateClaw knows fuel costs.",
+                auth: "apiKey",
+                https: true,
+                cors: true,
+                tier: 3,
+                url: "https://creativecommons.tankerkoenig.de/swagger/"
+            },
+            {
+                name: "BC Ferries",
+                category: "Transportation",
+                description: "Ferry schedules. GateClaw knows sea transit.",
+                auth: "none",
+                https: true,
+                cors: true,
+                tier: 3,
+                url: "https://www.bcferriesapi.ca"
+            },
+            {
+                name: "Icelandic APIs",
+                category: "Transportation",
+                description: "Iceland services. GateClaw knows Iceland.",
+                auth: "none",
+                https: true,
+                cors: "Unknown",
+                tier: 3,
+                url: "http://docs.apis.is/"
+            },
+            {
+                name: "1pt",
+                category: "URL Shorteners",
+                description: "URL shortener. GateClaw shortens links.",
+                auth: "none",
+                https: true,
+                cors: true,
+                tier: 3,
+                url: "https://github.com/1pt-co/api/blob/main/README.md"
+            },
+            {
+                name: "CleanURI",
+                category: "URL Shorteners",
+                description: "URL shortener. GateClaw cleans URLs.",
+                auth: "none",
+                https: true,
+                cors: true,
+                tier: 3,
+                url: "https://cleanuri.com/docs"
+            },
+            {
+                name: "GoTiny",
+                category: "URL Shorteners",
+                description: "Lightweight URL shortener. GateClaw goes tiny.",
+                auth: "none",
+                https: true,
+                cors: true,
+                tier: 3,
+                url: "https://github.com/robvanbakel/gotiny-api"
+            },
+            {
+                name: "Shrtcode",
+                category: "URL Shorteners",
+                description: "URL shortener with multiple domains. GateClaw has options.",
+                auth: "none",
+                https: true,
+                cors: true,
+                tier: 3,
+                url: "https://shrtco.de/docs"
+            },
+            {
+                name: "Git.io",
+                category: "URL Shorteners",
+                description: "GitHub URL shortener. GateClaw uses Git.",
+                auth: "none",
+                https: true,
+                cors: "Unknown",
+                tier: 3,
+                url: "https://github.blog/2011-11-10-git-io-github-url-shortener/"
+            },
+            {
+                name: "Drivet URL Shortener",
+                category: "URL Shorteners",
+                description: "Fast URL shortener. GateClaw drives URLs.",
+                auth: "none",
+                https: true,
+                cors: "Unknown",
+                tier: 3,
+                url: "https://wiki.drivet.xyz/en/url-shortener/add-links"
+            },
+            {
+                name: "Free Url Shortener",
+                category: "URL Shorteners",
+                description: "ULVIS URL shortener. GateClaw shortens free.",
+                auth: "none",
+                https: true,
+                cors: "Unknown",
+                tier: 3,
+                url: "https://ulvis.net/developer.html"
+            },
+            {
+                name: "Short Link",
+                category: "URL Shorteners",
+                description: "Multi-domain short URLs. GateClaw has many domains.",
+                auth: "none",
+                https: true,
+                cors: "Unknown",
+                tier: 3,
+                url: "https://github.com/FayasNoushad/Short-Link-API"
+            },
+            {
+                name: "NHTSA",
+                category: "Vehicle",
+                description: "Vehicle info and pricing. GateClaw knows cars.",
+                auth: "none",
+                https: true,
+                cors: "Unknown",
+                tier: 3,
+                url: "https://vpic.nhtsa.dot.gov/api/"
+            },
+            {
+                name: "Brazilian Vehicles",
+                category: "Vehicle",
+                description: "Vehicle prices from FIPE. GateClaw knows Brazil.",
+                auth: "none",
+                https: true,
+                cors: false,
+                tier: 3,
+                url: "https://deividfortuna.github.io/fipe/"
+            },
+            {
+                name: "Helipaddy",
+                category: "Vehicle",
+                description: "Helicopter landing sites. GateClaw knows helicopters.",
+                auth: "apiKey",
+                https: true,
+                cors: "Unknown",
+                tier: 3,
+                url: "https://helipaddy.com/api/"
+            },
+            {
+                name: "An API of Ice And Fire",
+                category: "Video",
+                description: "Game of Thrones API. GateClaw knows Westeros.",
+                auth: "none",
+                https: true,
+                cors: "Unknown",
+                tier: 3,
+                url: "https://anapioficeandfire.com/"
+            },
+            {
+                name: "Bob's Burgers",
+                category: "Video",
+                description: "Bob's Burgers API. GateClaw knows burgers.",
+                auth: "none",
+                https: true,
+                cors: true,
+                tier: 3,
+                url: "https://bobs-burgers-api-ui.herokuapp.com"
+            },
+            {
+                name: "Breaking Bad",
+                category: "Video",
+                description: "Breaking Bad API. GateClaw knows chemistry.",
+                auth: "none",
+                https: true,
+                cors: "Unknown",
+                tier: 3,
+                url: "https://breakingbadapi.com/documentation"
+            },
+            {
+                name: "Catalogopolis",
+                category: "Video",
+                description: "Doctor Who API. GateClaw knows Time Lords.",
+                auth: "none",
+                https: true,
+                cors: "Unknown",
+                tier: 3,
+                url: "https://api.catalogopolis.xyz/docs/"
+            }
+        ];
+
+        // Categories
+        const categories = {};
+        apis.forEach(api => {
+            if (!categories[api.category]) {
+                categories[api.category] = [];
+            }
+            categories[api.category].push(api);
+        });
+
+        // Current date
+        document.getElementById('currentDate').textContent = new Date().toLocaleDateString('en-US', { 
+            year: 'numeric', month: 'long', day: 'numeric' 
+        });
+
+        // Render category pills
+        function renderCategories() {
+            const scroll = document.getElementById('categoryScroll');
+            scroll.innerHTML = '<button class="category-pill active" data-category="all">All <span class="category-count">' + apis.length + '</span></button>';
+            
+            Object.keys(categories).sort().forEach(cat => {
+                scroll.innerHTML += '<button class="category-pill" data-category="' + cat + '">' + cat + ' <span class="category-count">' + categories[cat].length + '</span></button>';
+            });
+        }
+
+        // Render API cards
+        function renderAPIs(filteredAPIs) {
+            const grid = document.getElementById('apiGrid');
+            
+            if (filteredAPIs.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🔌</div>
+                        <div class="empty-state-title">No APIs found</div>
+                        <p>Try adjusting your search or filters</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            grid.innerHTML = filteredAPIs.map((api, index) => {
+                const authClass = api.auth === 'none' ? 'auth-none' : api.auth === 'apiKey' ? 'auth-apikey' : 'auth-oauth';
+                const authIcon = api.auth === 'none' ? '🔓' : api.auth === 'apiKey' ? '🔑' : '🔐';
+                const authLabel = api.auth === 'none' ? 'No Auth' : api.auth === 'apiKey' ? 'API Key' : 'OAuth';
+                const tierClass = 'tier-' + api.tier;
+                const tierLabel = api.tier === 1 ? 'Immediate' : api.tier === 2 ? 'Strategic' : 'Nice-to-Have';
+                const httpsIcon = api.https ? '✅' : '❌';
+                const corsIcon = api.cors === true ? '✅' : api.cors === false ? '❌' : '❓';
+                
+                return `
+                    <div class="api-card" data-category="${api.category}" data-tier="${api.tier}" data-auth="${api.auth}">
+                        <div class="api-card-header">
+                            <a href="${api.url}" target="_blank" class="api-name">${api.name}</a>
+                            <span class="api-tier ${tierClass}">Tier ${api.tier}</span>
+                        </div>
+                        <p class="api-description">${api.description}</p>
+                        <div class="api-meta">
+                            <span class="api-tag ${authClass}">
+                                <span class="api-tag-icon">${authIcon}</span>
+                                ${authLabel}
+                            </span>
+                            <span class="api-tag">
+                                <span class="api-tag-icon">📡</span>
+                                HTTPS ${httpsIcon}
+                            </span>
+                            <span class="api-tag">
+                                <span class="api-tag-icon">🌐</span>
+                                CORS ${corsIcon}
+                            </span>
+                            <span class="api-tag">
+                                <span class="api-tag-icon">📁</span>
+                                ${api.category}
+                            </span>
+                        </div>
+                        <a href="${api.url}" target="_blank" class="api-link">
+                            Visit API Docs →
+                        </a>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Filter APIs
+        function filterAPIs(searchTerm = '', category = 'all', tierFilter = 'all', authFilter = 'all') {
+            let filtered = apis.filter(api => {
+                // Search filter
+                if (searchTerm) {
+                    const search = searchTerm.toLowerCase();
+                    const nameMatch = api.name.toLowerCase().includes(search);
+                    const descMatch = api.description.toLowerCase().includes(search);
+                    const catMatch = api.category.toLowerCase().includes(search);
+                    if (!nameMatch && !descMatch && !catMatch) return false;
+                }
+                
+                // Category filter
+                if (category !== 'all' && api.category !== category) return false;
+                
+                // Tier filter
+                if (tierFilter !== 'all') {
+                    if (tierFilter === 'tier1' && api.tier !== 1) return false;
+                    if (tierFilter === 'tier2' && api.tier !== 2) return false;
+                    if (tierFilter === 'tier3' && api.tier !== 3) return false;
+                }
+                
+                // Auth filter
+                if (authFilter !== 'all') {
+                    if (authFilter === 'noauth' && api.auth !== 'none') return false;
+                    if (authFilter === 'apikey' && api.auth !== 'apiKey') return false;
+                }
+                
+                return true;
+            });
+            
+            return filtered;
+        }
+
+        // Highlight search matches
+        function highlightMatches(text, searchTerm) {
+            if (!searchTerm) return text;
+            const regex = new RegExp('(' + searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
+            return text.replace(regex, '<span class="highlight">$1</span>');
+        }
+
+        // Event listeners
+        const searchInput = document.getElementById('searchInput');
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const categoryPills = document.getElementById('categoryScroll');
+        
+        let currentCategory = 'all';
+        let currentTierFilter = 'all';
+        let currentAuthFilter = 'all';
+        
+        searchInput.addEventListener('input', (e) => {
+            const filtered = filterAPIs(e.target.value, currentCategory, currentTierFilter, currentAuthFilter);
+            renderAPIs(filtered);
+        });
+        
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                filterBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                const filter = btn.dataset.filter;
+                if (filter === 'all') {
+                    currentTierFilter = 'all';
+                    currentAuthFilter = 'all';
+                } else if (['tier1', 'tier2', 'tier3'].includes(filter)) {
+                    currentTierFilter = filter;
+                    currentAuthFilter = 'all';
+                } else if (['noauth', 'apikey'].includes(filter)) {
+                    currentAuthFilter = filter;
+                    currentTierFilter = 'all';
+                }
+                
+                const filtered = filterAPIs(searchInput.value, currentCategory, currentTierFilter, currentAuthFilter);
+                renderAPIs(filtered);
+            });
+        });
+        
+        categoryPills.addEventListener('click', (e) => {
+            if (e.target.classList.contains('category-pill') || e.target.parentElement.classList.contains('category-pill')) {
+                const pill = e.target.classList.contains('category-pill') ? e.target : e.target.parentElement;
+                
+                document.querySelectorAll('.category-pill').forEach(p => p.classList.remove('active'));
+                pill.classList.add('active');
+                
+                currentCategory = pill.dataset.category;
+                
+                const filtered = filterAPIs(searchInput.value, currentCategory, currentTierFilter, currentAuthFilter);
+                renderAPIs(filtered);
+            }
+        });
+
+        // Initialize
+        renderCategories();
+        renderAPIs(apis);
+    </script>
+</body>
+</html>
